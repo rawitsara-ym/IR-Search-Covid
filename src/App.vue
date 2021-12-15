@@ -4,11 +4,13 @@
     <h1>COVID-19 Research</h1>
     <img class='icon' alt="covid-19 logo" src="./assets/covid_icon.png">
   </div>
-  <ShowDocument v-bind:doc="doc"/>
+  <!-- <ShowDocument v-bind:doc="doc"/> -->
+  <search></search>
 </template>
 
 <script>
-import ShowDocument from './components/ShowDocument.vue'
+import Search from './components/Search.vue'
+// import ShowDocument from './components/ShowDocument.vue'
 
 export default {
   data() {
@@ -23,7 +25,8 @@ export default {
   },
   name: 'App',
   components: {
-    ShowDocument
+    Search
+    // ShowDocument
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
-  <form @submit.prevent="callback">
-    <input type="text" class="" v-model="value.match" /><button type="submit">
+  <form @submit.prevent="submit">
+    <input type="text" class="" v-model="query" /><button type="submit">
       <i class="fas fa-search"></i>
     </button>
   </form>
@@ -8,23 +8,21 @@
 <script>
 export default {
   mounted() {
-    this.$emit("update:modelValue", { match: "" });
+    this.$emit("update:modelValue", { query_string: { query: "" } });
   },
   props: ["modelValue"],
   emits: ["update:modelValue", "callback"],
+  data() {
+    return { query: "" };
+  },
   methods: {
     submit() {
       this.$emit("callback");
     },
   },
-  computed: {
-    value: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", { match: value });
-      },
+  watch: {
+    query(value) {
+      this.$emit("update:modelValue", { query_string: { query: value } });
     },
   },
 };
