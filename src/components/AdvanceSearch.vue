@@ -89,12 +89,12 @@ export default {
         model.bool.must.push({ match: { authors: this.author } });
       }
       if (this.published.from !== "" || this.published.to !== "") {
-        let published = { range: {} };
+        let published = { range: {"published date": {}} };
         if (this.published.from !== "") {
-          published["range"]["gte"] = this.published.from;
+          published["range"]["published date"]["gte"] = this.published.from;
         }
         if (this.published.to !== "") {
-          published["range"]["lte"] = this.published.to;
+          published["range"]["published date"]["lte"] = this.published.to;
         }
         console.log(published);
         model.bool.must.push(published);

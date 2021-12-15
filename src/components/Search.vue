@@ -6,9 +6,10 @@
   ></advance-search>
   <template v-else>
     <basic-search v-model="query" @callback="getapi()"></basic-search>
-    <a href="javascript:void(0)" @click="() => (advancedSearch = true)"
-      >Advanced Search</a
-    >
+    <div>
+      <a href="javascript:void(0)" @click="() => (advancedSearch = true)"
+      >Advanced Search</a>
+    </div>
   </template>
   <textarea
     id="show_query"
@@ -64,7 +65,7 @@ export default {
 <style scoped>
 textarea {
   width: 580px;
-  height: 150px;
+  height: 200px;
   padding: 12px 20px;
   box-sizing: border-box;
   border: 2px solid #ccc;
