@@ -89,7 +89,7 @@ export default {
         model.bool.must.push({ match: { authors: this.author } });
       }
       if (this.published.from !== "" || this.published.to !== "") {
-        let published = { range: {"published date": {}} };
+        let published = { range: { "published date": {} } };
         if (this.published.from !== "") {
           published["range"]["published date"]["gte"] = this.published.from;
         }
@@ -100,7 +100,7 @@ export default {
         model.bool.must.push(published);
       }
       if (this.url !== "") {
-        model.bool.must.push({ match: { url: this.url } });
+        model.bool.must.push({ wildcard: { url: "*" + this.url + "*" } });
       }
       if (this.abstract !== "") {
         model.bool.must.push({ match: { abstract: this.abstract } });

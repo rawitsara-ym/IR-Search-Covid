@@ -1,6 +1,8 @@
 <template>
   <form @submit.prevent="submit">
-    <input type="text" class="" v-model="query" /><button type="submit">
+    <input type="text" class="" v-model="query" /><button
+      type="submit"
+    >
       <i class="fas fa-search"></i>
     </button>
   </form>
@@ -12,17 +14,19 @@ export default {
   },
   props: ["modelValue"],
   emits: ["update:modelValue", "callback"],
-  data() {
-    return { query: "" };
-  },
   methods: {
     submit() {
       this.$emit("callback");
     },
   },
-  watch: {
-    query(value) {
-      this.$emit("update:modelValue", { query_string: { query: value } });
+  computed: {
+    query: {
+      get() {
+        return this.modelValue?.query_string?.query ?? "";
+      },
+      set(value) {
+        this.$emit("update:modelValue", { query_string: { query: value } });
+      },
     },
   },
 };

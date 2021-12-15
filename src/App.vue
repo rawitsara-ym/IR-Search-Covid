@@ -1,34 +1,64 @@
 <template>
-  <div class='title'>
-    <img class='icon flip' alt="covid-19 logo" src="./assets/covid_icon.png">
+  <div class="title">
+    <img class="icon flip" alt="covid-19 logo" src="./assets/covid_icon.png" />
     <h1>COVID-19 Research</h1>
-    <img class='icon' alt="covid-19 logo" src="./assets/covid_icon.png">
+    <img class="icon" alt="covid-19 logo" src="./assets/covid_icon.png" />
   </div>
-  <!-- <ShowDocument v-bind:doc="doc"/> -->
-  <search></search>
+  <show-document v-if="!!doc" v-bind:doc="doc" />
+  <search v-else></search>
 </template>
 
 <script>
-import Search from './components/Search.vue'
-// import ShowDocument from './components/ShowDocument.vue'
+import Search from "./components/Search.vue";
+import ShowDocument from "./components/ShowDocument.vue";
+
+const HOST = "http://localhost:9200";
+const API_ROUTE = "covid_research/_doc";
 
 export default {
-  data() {
-    return { doc: {
-                    title: "COVID-19 virtual patient cohort reveals immune mechanisms driving disease outcomes", 
-                    published: '01-01-2020', 
-                    authors: ["Rutu Karia", "Ishita Gupta", "Harshwardhan Khandait", "Ashima Yadav", "Anmol Yadav"],
-                    abtract: 'To understand the diversity of immune responses to SARS-CoV-2 and distinguish features that 39 predispose individuals to severe COVID-19  we developed a mechanistic  within-host mathematical 40 model and virtual patient cohort. Our results indicate that virtual patients with low production rates of 41 infected cell derived IFN subsequently experienced highly',
-                    url: 'https://journals.plos.org/plospathogens/article?id=10.1371/journal.ppat.1009753'
-                    }
-            }
+  created() {
+    if (window.location.search.indexOf("doc=") > -1) {
+      let param = window.location.search.slice(
+        window.location.search.indexOf("doc=") + 4
+      );
+      this.getapi(param).then((value) => {
+        console.log(value);
+        if (value.found) {
+          this.doc = {
+            title: value._source.title,
+            published: value._source["published date"],
+            authors: value._source.authors,
+            abstract: value._source.abstract,
+            url: value._source.url,
+          };
+        }
+      });
+    }
   },
-  name: 'App',
+  data() {
+    return {
+      doc: null,
+    };
+  },
+  name: "App",
+  methods: {
+    async getapi(id) {
+      const response = await fetch(`${HOST}/${API_ROUTE}/${id}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "cors",
+        credentials: "same-origin",
+      });
+      return response.json();
+    },
+  },
   components: {
-    Search
-    // ShowDocument
-  }
-}
+    Search,
+    ShowDocument,
+  },
+};
 </script>
 
 <style>

@@ -15,8 +15,8 @@
   </div>
   <hr>
   <div class="grid-container">
-    <p style="font-weight: bold;">Abtract</p>
-    <p>{{ doc.abtract }}</p>
+    <p style="font-weight: bold;">Abstract</p>
+    <p>{{ doc.abstract }}</p>
   </div>
   <hr>
   <div class="grid-container">

@@ -1,16 +1,21 @@
 <template>
+  <div style="margin: 20px">
+    <a
+      href="javascript:void(0)"
+      @click="() => (advancedSearch = !advancedSearch)"
+      >{{ "Go to " + (advancedSearch ? "Basic Search" : "Advanced Search") }}</a
+    >
+  </div>
   <advance-search
     v-if="advancedSearch"
     v-model="query"
-    @callback="getapi()"
+    @callback="this.fetchData()"
   ></advance-search>
-  <template v-else>
-    <basic-search v-model="query" @callback="getapi()"></basic-search>
-    <div>
-      <a href="javascript:void(0)" @click="() => (advancedSearch = true)"
-      >Advanced Search</a>
-    </div>
-  </template>
+  <basic-search
+    v-else
+    v-model="query"
+    @callback="this.fetchData()"
+  ></basic-search>
   <textarea
     id="show_query"
     v-model="showQuery"
@@ -18,8 +23,14 @@
     cols="80"
     rows="20"
   ></textarea>
-  <div v-if="result!=null">
-    <p v-for="(value,index) in result.hits.hits" :key="index"> {{value._source.title}} </p>
+  <div v-if="result?.hits" style="margin: 50px">
+    <p style="margin-bottom : 30px;font-weight:bold;">{{amount}}</p>
+    <div v-for="value in result.hits.hits" :key="value._id">
+      <p class="section">
+        <a :href="`?doc=${value._id}`">{{ value._source.title }}</a>
+      </p>
+      <hr />
+    </div>
   </div>
 </template>
 
@@ -32,34 +43,45 @@ const API_ROUTE = "covid_research/_search";
 
 export default {
   data() {
-    return { advancedSearch: false, query: {}, result: null };
+    return { advancedSearch: false, query: null, result: null };
   },
   components: {
     BasicSearch,
     AdvanceSearch,
   },
   methods: {
-    async getapi() {
-      const result = await fetch(`${HOST}/${API_ROUTE}`, {
+    async postapi(body) {
+      const response = await fetch(`${HOST}/${API_ROUTE}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         mode: "cors",
         credentials: "same-origin",
-        body: JSON.stringify(this.finalQuery),
+        body: JSON.stringify(body),
       });
-      this.result = result;
+      return response.json();
+    },
+    async fetchData() {
+      this.result = await this.postapi(this.finalQuery);
     },
   },
   computed: {
     finalQuery() {
-      return { size: 250, query: this.query };
+      return { size: 277, query: this.query };
     },
     showQuery() {
-      let displayQuery = `GET ${API_ROUTE}\n`;
+      let displayQuery = `POST ${API_ROUTE}\n`;
       displayQuery += JSON.stringify(this.finalQuery, null, 2);
       return displayQuery;
+    },
+    amount() {
+      if (this.result?.hits) {
+        if (this.result.hits.hits.length == 0) return `Not Found document.`;
+        else if (this.result.hits.hits.length == 1) return `Found 1 document.`;
+        else return `Found ${this.result.hits.hits.length} documents.`;
+      }
+      return "";
     },
   },
 };
@@ -76,5 +98,18 @@ textarea {
   background-color: #f8f8f8;
   font-size: 16px;
   resize: none;
+}
+.section {
+  text-align: left;
+}
+.section a {
+  color: black;
+  text-decoration: none;
+}
+
+.section a:hover {
+  cursor: pointer;
+  color: red;
+  text-decoration: underline;
 }
 </style>
