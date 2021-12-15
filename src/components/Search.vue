@@ -18,6 +18,9 @@
     cols="80"
     rows="20"
   ></textarea>
+  <div v-if="result!=null">
+    <p v-for="(value,index) in result.hits.hits" :key="index"> {{value._source.title}} </p>
+  </div>
 </template>
 
 <script>
@@ -29,7 +32,7 @@ const API_ROUTE = "covid_research/_search";
 
 export default {
   data() {
-    return { advancedSearch: false, query: {}, result: {} };
+    return { advancedSearch: false, query: {}, result: null };
   },
   components: {
     BasicSearch,
