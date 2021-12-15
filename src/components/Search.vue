@@ -64,3 +64,17 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+textarea {
+  width: 580px;
+  height: 150px;
+  padding: 12px 20px;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  background-color: #f8f8f8;
+  font-size: 16px;
+  resize: none;
+}
+</style>
