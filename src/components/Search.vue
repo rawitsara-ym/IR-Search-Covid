@@ -1,64 +1,60 @@
 <template>
-  <basic-search v-if="!advancedSearch" v-model="query"></basic-search>
-  <advance-search v-else v-model="query"></advance-search>
-  <textarea id="show_query" v-model="showQuery" readonly></textarea>
+  <advance-search
+    v-if="advancedSearch"
+    v-model="query"
+    @callback="getapi()"
+  ></advance-search>
+  <template v-else>
+    <basic-search v-model="query" @callback="getapi()"></basic-search>
+    <a href="javascript:void(0)" @click="() => (advancedSearch = true)"
+      >Advanced Search</a
+    >
+  </template>
+  <textarea
+    id="show_query"
+    v-model="showQuery"
+    readonly
+    cols="80"
+    rows="20"
+  ></textarea>
 </template>
 
 <script>
 import AdvanceSearch from "./AdvanceSearch.vue";
 import BasicSearch from "./BasicSearch.vue";
 
-const api = "covid_research/_search";
-
-function pretty_json(object, indent = 0) {
-  let str = "{\n";
-  indent += 1;
-  const array_str = [];
-  for (const key in object) {
-    if (Object.hasOwnProperty.call(object, key)) {
-      const element = object[key];
-      const startwith = "  ".repeat(indent) + `"${key}": `;
-      if (Array.isArray(element)) {
-        if (element.length > 0) {
-          array_str.push(
-            `${startwith}[${element.reduce(
-              (prev, curr) => `${prev}, ${curr}`
-            )}]`
-          );
-        } else {
-          array_str.push(`${startwith}[]`);
-        }
-      } else if (typeof element === "object") {
-        array_str.push(startwith + pretty_json(element, indent));
-      } else if (typeof element === "string") {
-        array_str.push(`${startwith}"${element}"`);
-      } else {
-        array_str.push(`${startwith}${element}`);
-      }
-    }
-  }
-  if (array_str.length > 0) {
-    str += array_str.reduce((prev, curr) => {
-      prev + ",\n" + curr;
-    });
-  }
-  indent -= 1;
-  str += "\n" + "  ".repeat(indent) + "}";
-  return str;
-}
+const HOST = "http://localhost:9200";
+const API_ROUTE = "covid_research/_search";
 
 export default {
   data() {
-    return { advancedSearch: true, query: {} };
+    return { advancedSearch: false, query: {}, result: {} };
   },
   components: {
     BasicSearch,
     AdvanceSearch,
   },
+  methods: {
+    async getapi() {
+      const result = await fetch(`${HOST}/${API_ROUTE}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        mode: "cors",
+        credentials: "same-origin",
+        body: JSON.stringify(this.finalQuery),
+      });
+      this.result = result;
+    },
+  },
   computed: {
+    finalQuery() {
+      return { size: 250, query: this.query };
+    },
     showQuery() {
-      let displayQuery = `GET ${api}\n`;
-      displayQuery += pretty_json({ query: this.query });
+      let displayQuery = `GET ${API_ROUTE}\n`;
+      displayQuery += JSON.stringify(this.finalQuery, null, 2);
       return displayQuery;
     },
   },

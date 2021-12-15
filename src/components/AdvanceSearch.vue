@@ -1,31 +1,59 @@
 <template>
   <div class="container">
-    <form @submit.prevent="callback">
+    <form @submit.prevent="submit">
       <div class="search-container">
         <div class="grid-template-2">
           <label for="title">Title</label>
-          <input type="text" id="title_search" name="title" />
+          <input
+            type="text"
+            id="title_search"
+            name="title"
+            v-model="title"
+            @input="update_query()"
+          />
           <label for="author">Author</label>
-          <input type="text" id="author_search" name="author" />
+          <input
+            type="text"
+            id="author_search"
+            name="author"
+            v-model="author"
+            @input="update_query()"
+          />
         </div>
         <div class="grid-template-3">
           <label for="published_date">Published</label>
-          <input style="margin-right: 10px"
+          <input
             type="date"
             id="published_date_from_search"
             name="published_date[from]"
+            v-model="published.from"
+            @input="update_query()"
           />
-          <input style="margin-left: 10px"
+          <input
             type="date"
             id="published_date_to_search"
             name="published_date[to]"
+            v-model="published.to"
+            @input="update_query()"
           />
           <label for="url">URL</label>
-          <input type="text" id="url_search" name="url" />
+          <input
+            type="text"
+            id="url_search"
+            name="url"
+            v-model="url"
+            @input="update_query()"
+          />
         </div>
         <div class="grid-template-1">
           <label for="abstract">Abstract</label>
-          <input type="text" id="abstract_search" name="abstract" />
+          <input
+            type="text"
+            id="abstract_search"
+            name="abstract"
+            v-model="abstract"
+            @input="update_query()"
+          />
         </div>
       </div>
       <button type="submit">Search <i class="fas fa-search"></i></button>
@@ -39,19 +67,45 @@ export default {
   },
   props: ["modelValue"],
   emits: ["update:modelValue", "callback"],
+  data() {
+    return {
+      title: "",
+      author: "",
+      published: { from: "", to: "" },
+      url: "",
+      abstract: "",
+    };
+  },
   methods: {
     submit() {
       this.$emit("callback");
     },
-  },
-  computed: {
-    value: {
-      get() {
-        return this.modelValue;
-      },
-      set(value) {
-        this.$emit("update:modelValue", { match: value });
-      },
+    update_query() {
+      const model = { bool: { must: [] } };
+      if (this.title !== "") {
+        model.bool.must.push({ match: { title: this.title } });
+      }
+      if (this.author !== "") {
+        model.bool.must.push({ match: { authors: this.author } });
+      }
+      if (this.published.from !== "" || this.published.to !== "") {
+        let published = { range: {} };
+        if (this.published.from !== "") {
+          published["range"]["gte"] = this.published.from;
+        }
+        if (this.published.to !== "") {
+          published["range"]["lte"] = this.published.to;
+        }
+        console.log(published);
+        model.bool.must.push(published);
+      }
+      if (this.url !== "") {
+        model.bool.must.push({ match: { url: this.url } });
+      }
+      if (this.abstract !== "") {
+        model.bool.must.push({ match: { abstract: this.abstract } });
+      }
+      this.$emit("update:modelValue", model);
     },
   },
 };
@@ -120,5 +174,4 @@ input {
   font-size: 16px;
   padding: 2px 10px;
 }
-
 </style>
